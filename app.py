@@ -487,426 +487,426 @@ with col_right:
                     f"Entfeuchtung: {p_kuehlung_entf_normal:.1f} kW" if p_kuehlung_entf_normal > 0.1 else None)
            st.markdown('</div>', unsafe_allow_html=True)
        
-       with col4:
-           p_gesamt = p_ventilator_normal + p_heizen_normal + p_kuehlen_normal
-           st.metric("⚡ Gesamtleistung", f"{p_gesamt:.1f} kW", "Anschlusswert")
-       
-       st.markdown("---")
-       st.subheader("📊 Jahresenergie & Kosten")
-       
-       col1, col2, col3, col4 = st.columns(4)
-       
-       with col1:
-           st.markdown('<div class="metric-ventilator">', unsafe_allow_html=True)
-           st.metric("🟡 Ventilator", 
-                    f"{kosten_ventilator:.0f} €/a",
-                    f"{energie_ventilator:.0f} kWh/a")
-           st.markdown('</div>', unsafe_allow_html=True)
-       
-       with col2:
-           st.markdown('<div class="metric-heizung">', unsafe_allow_html=True)
-           st.metric("🔴 Heizung", 
-                    f"{kosten_heizen:.0f} €/a",
-                    f"{energie_heizen:.0f} kWh/a")
-           st.markdown('</div>', unsafe_allow_html=True)
-       
-       with col3:
-           st.markdown('<div class="metric-kuehlung">', unsafe_allow_html=True)
-           st.metric("🔵 Kühlung", 
-                    f"{kosten_kuehlen:.0f} €/a",
-                    f"{energie_kuehlen:.0f} kWh/a")
-           st.markdown('</div>', unsafe_allow_html=True)
-       
-       with col4:
-           st.metric("💰 Gesamtkosten", 
-                    f"{gesamtkosten:.0f} €/a",
-                    f"{gesamtkosten/12:.0f} €/Monat")
-       
-       # Erweiterte Kennzahlen
-       st.markdown("---")
-       st.subheader("📈 Kennzahlen")
-       
-       col1, col2, col3, col4 = st.columns(4)
-       
-       with col1:
-           if stunden_jahr['gesamt'] > 0:
-               spez_kosten = gesamtkosten / (volumenstrom * stunden_jahr['gesamt'] / 1000)
-               st.metric("Spez. Kosten", f"{spez_kosten:.3f} €/(m³·h)")
-       
-       with col2:
-           spez_leistung = p_gesamt / volumenstrom * 1000
-           st.metric("Spez. Leistung", f"{spez_leistung:.2f} W/m³/h")
-       
-       with col3:
-           jahresenergie_gesamt = (energie_ventilator + energie_heizen + energie_kuehlen) / 1000
-           st.metric("Jahresenergie", f"{jahresenergie_gesamt:.1f} MWh/a")
-       
-       with col4:
-           co2_emissionen = (energie_ventilator * 0.4 + energie_heizen * 0.2) / 1000  # t CO2
-           st.metric("CO₂-Emissionen", f"{co2_emissionen:.1f} t/a")
+        with col4:
+            p_gesamt = p_ventilator_normal + p_heizen_normal + p_kuehlen_normal
+            st.metric("⚡ Gesamtleistung", f"{p_gesamt:.1f} kW", "Anschlusswert")
+        
+        st.markdown("---")
+        st.subheader("📊 Jahresenergie & Kosten")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.markdown('<div class="metric-ventilator">', unsafe_allow_html=True)
+            st.metric("🟡 Ventilator", 
+                        f"{kosten_ventilator:.0f} €/a",
+                        f"{energie_ventilator:.0f} kWh/a")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown('<div class="metric-heizung">', unsafe_allow_html=True)
+            st.metric("🔴 Heizung", 
+                        f"{kosten_heizen:.0f} €/a",
+                        f"{energie_heizen:.0f} kWh/a")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col3:
+            st.markdown('<div class="metric-kuehlung">', unsafe_allow_html=True)
+            st.metric("🔵 Kühlung", 
+                        f"{kosten_kuehlen:.0f} €/a",
+                        f"{energie_kuehlen:.0f} kWh/a")
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col4:
+            st.metric("💰 Gesamtkosten", 
+                        f"{gesamtkosten:.0f} €/a",
+                        f"{gesamtkosten/12:.0f} €/Monat")
+        
+        # Erweiterte Kennzahlen
+        st.markdown("---")
+        st.subheader("📈 Kennzahlen")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            if stunden_jahr['gesamt'] > 0:
+                spez_kosten = gesamtkosten / (volumenstrom * stunden_jahr['gesamt'] / 1000)
+                st.metric("Spez. Kosten", f"{spez_kosten:.3f} €/(m³·h)")
+        
+        with col2:
+            spez_leistung = p_gesamt / volumenstrom * 1000
+            st.metric("Spez. Leistung", f"{spez_leistung:.2f} W/m³/h")
+        
+        with col3:
+            jahresenergie_gesamt = (energie_ventilator + energie_heizen + energie_kuehlen) / 1000
+            st.metric("Jahresenergie", f"{jahresenergie_gesamt:.1f} MWh/a")
+        
+        with col4:
+            co2_emissionen = (energie_ventilator * 0.4 + energie_heizen * 0.2) / 1000  # t CO2
+            st.metric("CO₂-Emissionen", f"{co2_emissionen:.1f} t/a")
 
-   with tab2:
-       st.subheader("🔄 Luftbehandlungsprozess")
-       
-       # Prozess-Tabelle mit Farbcodierung
-       df_prozess = pd.DataFrame(prozess_normal['schritte'])
-       df_prozess.columns = ['Prozessschritt', 'Temperatur [°C]', 'rel. Feuchte [%]', 'abs. Feuchte [g/kg]', 'Enthalpie [kJ/kg]', 'Taupunkt [°C]']
-       
-       st.dataframe(df_prozess, use_container_width=True, hide_index=True)
-       
-       st.markdown("---")
-       st.subheader("🔧 Detaillierte Prozessleistungen")
-       
-       col1, col2 = st.columns(2)
-       
-       with col1:
-           st.markdown("**🔵 Kühlprozesse:**")
-           if p_kuehlung_entf_normal > 0.1:
-               st.markdown(f'<div class="metric-kuehlung">❄️ <b>Entfeuchtungskühlung:</b> {p_kuehlung_entf_normal:.1f} kW</div>', 
-                          unsafe_allow_html=True)
-           if p_kuehlung_direkt_normal > 0.1:
-               st.markdown(f'<div class="metric-kuehlung">❄️ <b>Direkte Kühlung:</b> {p_kuehlung_direkt_normal:.1f} kW</div>', 
-                          unsafe_allow_html=True)
-           if p_kuehlung_entf_normal <= 0.1 and p_kuehlung_direkt_normal <= 0.1:
-               st.info("Keine Kühlung erforderlich")
-       
-       with col2:
-           st.markdown("**🔴 Heizprozesse:**")
-           if p_nachheizung_normal > 0.1:
-               st.markdown(f'<div class="metric-heizung">🔥 <b>Nachheizung:</b> {p_nachheizung_normal:.1f} kW</div>', 
-                          unsafe_allow_html=True)
-           if p_heizung_direkt_normal > 0.1:
-               st.markdown(f'<div class="metric-heizung">🔥 <b>Direkte Heizung:</b> {p_heizung_direkt_normal:.1f} kW</div>', 
-                          unsafe_allow_html=True)
-           if p_nachheizung_normal <= 0.1 and p_heizung_direkt_normal <= 0.1:
-               st.info("Keine Heizung erforderlich")
-       
-       # WRG-Einsparung
-       if wrg_wirkungsgrad > 0:
-           st.markdown("---")
-           st.markdown(f'<div class="metric-wrg">🟣 <b>WRG-Wärmerückgewinnung ({wrg_typ}):</b><br>Wirkungsgrad: {wrg_wirkungsgrad*100:.0f}% - Energieeinsparung durch Vorwärmung/Vorkühlung</div>', 
-                      unsafe_allow_html=True)
+    with tab2:
+        st.subheader("🔄 Luftbehandlungsprozess")
+        
+        # Prozess-Tabelle mit Farbcodierung
+        df_prozess = pd.DataFrame(prozess_normal['schritte'])
+        df_prozess.columns = ['Prozessschritt', 'Temperatur [°C]', 'rel. Feuchte [%]', 'abs. Feuchte [g/kg]', 'Enthalpie [kJ/kg]', 'Taupunkt [°C]']
+        
+        st.dataframe(df_prozess, use_container_width=True, hide_index=True)
+        
+        st.markdown("---")
+        st.subheader("🔧 Detaillierte Prozessleistungen")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**🔵 Kühlprozesse:**")
+            if p_kuehlung_entf_normal > 0.1:
+                st.markdown(f'<div class="metric-kuehlung">❄️ <b>Entfeuchtungskühlung:</b> {p_kuehlung_entf_normal:.1f} kW</div>', 
+                            unsafe_allow_html=True)
+            if p_kuehlung_direkt_normal > 0.1:
+                st.markdown(f'<div class="metric-kuehlung">❄️ <b>Direkte Kühlung:</b> {p_kuehlung_direkt_normal:.1f} kW</div>', 
+                            unsafe_allow_html=True)
+            if p_kuehlung_entf_normal <= 0.1 and p_kuehlung_direkt_normal <= 0.1:
+                st.info("Keine Kühlung erforderlich")
+        
+        with col2:
+            st.markdown("**🔴 Heizprozesse:**")
+            if p_nachheizung_normal > 0.1:
+                st.markdown(f'<div class="metric-heizung">🔥 <b>Nachheizung:</b> {p_nachheizung_normal:.1f} kW</div>', 
+                            unsafe_allow_html=True)
+            if p_heizung_direkt_normal > 0.1:
+                st.markdown(f'<div class="metric-heizung">🔥 <b>Direkte Heizung:</b> {p_heizung_direkt_normal:.1f} kW</div>', 
+                            unsafe_allow_html=True)
+            if p_nachheizung_normal <= 0.1 and p_heizung_direkt_normal <= 0.1:
+                st.info("Keine Heizung erforderlich")
+        
+        # WRG-Einsparung
+        if wrg_wirkungsgrad > 0:
+            st.markdown("---")
+            st.markdown(f'<div class="metric-wrg">🟣 <b>WRG-Wärmerückgewinnung ({wrg_typ}):</b><br>Wirkungsgrad: {wrg_wirkungsgrad*100:.0f}% - Energieeinsparung durch Vorwärmung/Vorkühlung</div>', 
+                        unsafe_allow_html=True)
 
-   with tab3:
-       st.subheader("📈 Kosten- & Energieverteilung")
-       
-       col1, col2 = st.columns(2)
-       
-       with col1:
-           # Kostenverteilung mit Farbschema
-           kosten_data = []
-           labels_data = []
-           colors_data = []
-           
-           if kosten_ventilator > 0:
-               kosten_data.append(kosten_ventilator)
-               labels_data.append("🟡 Ventilator")
-               colors_data.append(FARBEN['ventilator'])
-           
-           if kosten_heizen > 0:
-               kosten_data.append(kosten_heizen)
-               labels_data.append("🔴 Heizung")
-               colors_data.append(FARBEN['heizung'])
-           
-           if kosten_kuehlen > 0:
-               kosten_data.append(kosten_kuehlen)
-               labels_data.append("🔵 Kühlung")
-               colors_data.append(FARBEN['kuehlung'])
-           
-           if kosten_data:
-               fig_pie = go.Figure(data=[go.Pie(
-                   labels=labels_data,
-                   values=kosten_data,
-                   hole=0.4,
-                   marker=dict(colors=colors_data),
-                   textinfo='label+percent+value',
-                   texttemplate='%{label}<br>%{percent}<br>%{value:.0f}€'
-               )])
-               fig_pie.update_layout(
-                   title="Jahreskosten-Verteilung",
-                   height=400,
-                   showlegend=False
-               )
-               st.plotly_chart(fig_pie, use_container_width=True)
-       
-       with col2:
-           # Leistungsverteilung
-           leistungen_data = []
-           leistungen_labels = []
-           leistungen_colors = []
-           
-           if p_ventilator_normal > 0:
-               leistungen_data.append(p_ventilator_normal)
-               leistungen_labels.append("🟡 Ventilator")
-               leistungen_colors.append(FARBEN['ventilator'])
-           
-           if p_heizen_normal > 0:
-               leistungen_data.append(p_heizen_normal)
-               leistungen_labels.append("🔴 Heizung")
-               leistungen_colors.append(FARBEN['heizung'])
-           
-           if p_kuehlen_normal > 0:
-               leistungen_data.append(p_kuehlen_normal)
-               leistungen_labels.append("🔵 Kühlung")
-               leistungen_colors.append(FARBEN['kuehlung'])
-           
-           if leistungen_data:
-               fig_bar = go.Figure(data=[go.Bar(
-                   x=leistungen_labels,
-                   y=leistungen_data,
-                   marker_color=leistungen_colors,
-                   text=[f"{val:.1f} kW" for val in leistungen_data],
-                   textposition='auto'
-               )])
-               fig_bar.update_layout(
-                   title="Installierte Leistungen",
-                   height=400,
-                   yaxis_title="Leistung [kW]",
-                   showlegend=False
-               )
-               st.plotly_chart(fig_bar, use_container_width=True)
-       
-       # Energiebilanz-Diagramm
-       st.markdown("---")
-       st.subheader("📊 Jahresenergiebilanz")
-       
-       energien = [energie_ventilator/1000, energie_heizen/1000, energie_kuehlen/1000]  # in MWh
-       energie_labels = ["🟡 Ventilator", "🔴 Heizung", "🔵 Kühlung"]
-       energie_colors = [FARBEN['ventilator'], FARBEN['heizung'], FARBEN['kuehlung']]
-       
-       fig_energie = go.Figure(data=[go.Bar(
-           x=energie_labels,
-           y=energien,
-           marker_color=energie_colors,
-           text=[f"{val:.1f} MWh" for val in energien],
-           textposition='auto'
-       )])
-       fig_energie.update_layout(
-           title="Jahresenergieverbrauch",
-           height=350,
-           yaxis_title="Energie [MWh/Jahr]",
-           showlegend=False
-       )
-       st.plotly_chart(fig_energie, use_container_width=True)
+    with tab3:
+        st.subheader("📈 Kosten- & Energieverteilung")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Kostenverteilung mit Farbschema
+            kosten_data = []
+            labels_data = []
+            colors_data = []
+            
+            if kosten_ventilator > 0:
+                kosten_data.append(kosten_ventilator)
+                labels_data.append("🟡 Ventilator")
+                colors_data.append(FARBEN['ventilator'])
+            
+            if kosten_heizen > 0:
+                kosten_data.append(kosten_heizen)
+                labels_data.append("🔴 Heizung")
+                colors_data.append(FARBEN['heizung'])
+            
+            if kosten_kuehlen > 0:
+                kosten_data.append(kosten_kuehlen)
+                labels_data.append("🔵 Kühlung")
+                colors_data.append(FARBEN['kuehlung'])
+            
+            if kosten_data:
+                fig_pie = go.Figure(data=[go.Pie(
+                    labels=labels_data,
+                    values=kosten_data,
+                    hole=0.4,
+                    marker=dict(colors=colors_data),
+                    textinfo='label+percent+value',
+                    texttemplate='%{label}<br>%{percent}<br>%{value:.0f}€'
+                )])
+                fig_pie.update_layout(
+                    title="Jahreskosten-Verteilung",
+                    height=400,
+                    showlegend=False
+                )
+                st.plotly_chart(fig_pie, use_container_width=True)
+        
+        with col2:
+            # Leistungsverteilung
+            leistungen_data = []
+            leistungen_labels = []
+            leistungen_colors = []
+            
+            if p_ventilator_normal > 0:
+                leistungen_data.append(p_ventilator_normal)
+                leistungen_labels.append("🟡 Ventilator")
+                leistungen_colors.append(FARBEN['ventilator'])
+            
+            if p_heizen_normal > 0:
+                leistungen_data.append(p_heizen_normal)
+                leistungen_labels.append("🔴 Heizung")
+                leistungen_colors.append(FARBEN['heizung'])
+            
+            if p_kuehlen_normal > 0:
+                leistungen_data.append(p_kuehlen_normal)
+                leistungen_labels.append("🔵 Kühlung")
+                leistungen_colors.append(FARBEN['kuehlung'])
+            
+            if leistungen_data:
+                fig_bar = go.Figure(data=[go.Bar(
+                    x=leistungen_labels,
+                    y=leistungen_data,
+                    marker_color=leistungen_colors,
+                    text=[f"{val:.1f} kW" for val in leistungen_data],
+                    textposition='auto'
+                )])
+                fig_bar.update_layout(
+                    title="Installierte Leistungen",
+                    height=400,
+                    yaxis_title="Leistung [kW]",
+                    showlegend=False
+                )
+                st.plotly_chart(fig_bar, use_container_width=True)
+        
+        # Energiebilanz-Diagramm
+        st.markdown("---")
+        st.subheader("📊 Jahresenergiebilanz")
+        
+        energien = [energie_ventilator/1000, energie_heizen/1000, energie_kuehlen/1000]  # in MWh
+        energie_labels = ["🟡 Ventilator", "🔴 Heizung", "🔵 Kühlung"]
+        energie_colors = [FARBEN['ventilator'], FARBEN['heizung'], FARBEN['kuehlung']]
+        
+        fig_energie = go.Figure(data=[go.Bar(
+            x=energie_labels,
+            y=energien,
+            marker_color=energie_colors,
+            text=[f"{val:.1f} MWh" for val in energien],
+            textposition='auto'
+        )])
+        fig_energie.update_layout(
+            title="Jahresenergieverbrauch",
+            height=350,
+            yaxis_title="Energie [MWh/Jahr]",
+            showlegend=False
+        )
+        st.plotly_chart(fig_energie, use_container_width=True)
 
-   with tab4:
-       st.subheader("📋 Detailliertes Betriebsprofil")
-       
-       # Wochenprofil-Übersicht
-       st.markdown("**Wochentagsprofil:**")
-       
-       betriebsprofil_data = []
-       for tag_kurz, tag_name in zip(['mo', 'di', 'mi', 'do', 'fr', 'sa', 'so'], 
-                                    ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']):
-           if betriebszeiten[tag_kurz]['aktiv']:
-               normal_stunden = betriebszeiten[tag_kurz]['normal_bis'] - betriebszeiten[tag_kurz]['normal_von']
-               absenk_stunden = (24 - normal_stunden) if betriebszeiten[tag_kurz]['absenk_aktiv'] else 0
-               aus_stunden = 24 - normal_stunden - absenk_stunden
-           else:
-               normal_stunden = absenk_stunden = 0
-               aus_stunden = 24
-           
-           betriebsprofil_data.append({
-               'Wochentag': tag_name,
-               'Normal [h]': normal_stunden,
-               'Absenk [h]': absenk_stunden,
-               'AUS [h]': aus_stunden,
-               'Normal-Zeit': f"{betriebszeiten[tag_kurz]['normal_von']:02d}:00-{betriebszeiten[tag_kurz]['normal_bis']:02d}:00" if betriebszeiten[tag_kurz]['aktiv'] else "-"
-           })
-       
-       df_betrieb = pd.DataFrame(betriebsprofil_data)
-       st.dataframe(df_betrieb, use_container_width=True, hide_index=True)
-       
-       # Jahres-Betriebsstunden-Übersicht
-       st.markdown("---")
-       st.subheader("⏰ Jahres-Betriebsstunden-Bilanz")
-       
-       col1, col2, col3, col4 = st.columns(4)
-       
-       with col1:
-           st.metric("🟢 Normalbetrieb", f"{stunden_jahr['normal']:,.0f} h/a")
-           st.caption(f"= {stunden_jahr['normal']/24:.0f} Tage")
-       
-       with col2:
-           st.metric("🟡 Absenkbetrieb", f"{stunden_jahr['absenk']:,.0f} h/a")
-           st.caption(f"= {stunden_jahr['absenk']/24:.0f} Tage")
-       
-       with col3:
-           st.metric("🔴 AUS-Zeiten", f"{stunden_jahr['aus']:,.0f} h/a")
-           st.caption(f"= {stunden_jahr['aus']/24:.0f} Tage")
-       
-       with col4:
-           st.metric("⚡ Aktive Zeit", f"{stunden_jahr['gesamt']:,.0f} h/a")
-           st.caption(f"= {stunden_jahr['gesamt']/8760*100:.1f}% des Jahres")
-       
-       # Betriebsprofil-Visualisierung
-       st.markdown("---")
-       st.subheader("📊 Wochenprofil-Visualisierung")
-       
-       wochentage_viz = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
-       normal_stunden_viz = [df_betrieb.iloc[i]['Normal [h]'] for i in range(7)]
-       absenk_stunden_viz = [df_betrieb.iloc[i]['Absenk [h]'] for i in range(7)]
-       aus_stunden_viz = [df_betrieb.iloc[i]['AUS [h]'] for i in range(7)]
-       
-       fig_woche = go.Figure()
-       
-       fig_woche.add_trace(go.Bar(
-           x=wochentage_viz,
-           y=normal_stunden_viz,
-           name='🟢 Normalbetrieb',
-           marker_color='#27AE60'
-       ))
-       
-       fig_woche.add_trace(go.Bar(
-           x=wochentage_viz,
-           y=absenk_stunden_viz,
-           name='🟡 Absenkbetrieb',
-           marker_color='#F39C12'
-       ))
-       
-       fig_woche.add_trace(go.Bar(
-           x=wochentage_viz,
-           y=aus_stunden_viz,
-           name='🔴 AUS',
-           marker_color='#E74C3C'
-       ))
-       
-       fig_woche.update_layout(
-           title="Wochenprofil: Betriebsmodi pro Tag",
-           barmode='stack',
-           height=400,
-           yaxis_title="Stunden pro Tag",
-           xaxis_title="Wochentag"
-       )
-       st.plotly_chart(fig_woche, use_container_width=True)
+    with tab4:
+        st.subheader("📋 Detailliertes Betriebsprofil")
+        
+        # Wochenprofil-Übersicht
+        st.markdown("**Wochentagsprofil:**")
+        
+        betriebsprofil_data = []
+        for tag_kurz, tag_name in zip(['mo', 'di', 'mi', 'do', 'fr', 'sa', 'so'], 
+                                        ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']):
+            if betriebszeiten[tag_kurz]['aktiv']:
+                normal_stunden = betriebszeiten[tag_kurz]['normal_bis'] - betriebszeiten[tag_kurz]['normal_von']
+                absenk_stunden = (24 - normal_stunden) if betriebszeiten[tag_kurz]['absenk_aktiv'] else 0
+                aus_stunden = 24 - normal_stunden - absenk_stunden
+            else:
+                normal_stunden = absenk_stunden = 0
+                aus_stunden = 24
+            
+            betriebsprofil_data.append({
+                'Wochentag': tag_name,
+                'Normal [h]': normal_stunden,
+                'Absenk [h]': absenk_stunden,
+                'AUS [h]': aus_stunden,
+                'Normal-Zeit': f"{betriebszeiten[tag_kurz]['normal_von']:02d}:00-{betriebszeiten[tag_kurz]['normal_bis']:02d}:00" if betriebszeiten[tag_kurz]['aktiv'] else "-"
+            })
+        
+        df_betrieb = pd.DataFrame(betriebsprofil_data)
+        st.dataframe(df_betrieb, use_container_width=True, hide_index=True)
+        
+        # Jahres-Betriebsstunden-Übersicht
+        st.markdown("---")
+        st.subheader("⏰ Jahres-Betriebsstunden-Bilanz")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("🟢 Normalbetrieb", f"{stunden_jahr['normal']:,.0f} h/a")
+            st.caption(f"= {stunden_jahr['normal']/24:.0f} Tage")
+        
+        with col2:
+            st.metric("🟡 Absenkbetrieb", f"{stunden_jahr['absenk']:,.0f} h/a")
+            st.caption(f"= {stunden_jahr['absenk']/24:.0f} Tage")
+        
+        with col3:
+            st.metric("🔴 AUS-Zeiten", f"{stunden_jahr['aus']:,.0f} h/a")
+            st.caption(f"= {stunden_jahr['aus']/24:.0f} Tage")
+        
+        with col4:
+            st.metric("⚡ Aktive Zeit", f"{stunden_jahr['gesamt']:,.0f} h/a")
+            st.caption(f"= {stunden_jahr['gesamt']/8760*100:.1f}% des Jahres")
+        
+        # Betriebsprofil-Visualisierung
+        st.markdown("---")
+        st.subheader("📊 Wochenprofil-Visualisierung")
+        
+        wochentage_viz = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+        normal_stunden_viz = [df_betrieb.iloc[i]['Normal [h]'] for i in range(7)]
+        absenk_stunden_viz = [df_betrieb.iloc[i]['Absenk [h]'] for i in range(7)]
+        aus_stunden_viz = [df_betrieb.iloc[i]['AUS [h]'] for i in range(7)]
+        
+        fig_woche = go.Figure()
+        
+        fig_woche.add_trace(go.Bar(
+            x=wochentage_viz,
+            y=normal_stunden_viz,
+            name='🟢 Normalbetrieb',
+            marker_color='#27AE60'
+        ))
+        
+        fig_woche.add_trace(go.Bar(
+            x=wochentage_viz,
+            y=absenk_stunden_viz,
+            name='🟡 Absenkbetrieb',
+            marker_color='#F39C12'
+        ))
+        
+        fig_woche.add_trace(go.Bar(
+            x=wochentage_viz,
+            y=aus_stunden_viz,
+            name='🔴 AUS',
+            marker_color='#E74C3C'
+        ))
+        
+        fig_woche.update_layout(
+            title="Wochenprofil: Betriebsmodi pro Tag",
+            barmode='stack',
+            height=400,
+            yaxis_title="Stunden pro Tag",
+            xaxis_title="Wochentag"
+        )
+        st.plotly_chart(fig_woche, use_container_width=True)
 
-# Footer mit Professional PDF Export
-st.markdown("---")
-col1, col2, col3 = st.columns([2, 1, 2])
+    # Footer mit Professional PDF Export
+    st.markdown("---")
+    col1, col2, col3 = st.columns([2, 1, 2])
 
-with col2:
-   if st.button("📄 Professional Report", type="primary", use_container_width=True):
-       buffer = BytesIO()
-       p = canvas.Canvas(buffer, pagesize=A4)
-       width, height = A4
-       
-       # Header
-       p.setFont("Helvetica-Bold", 18)
-       p.drawString(50, height-50, "RLT-Kostenanalyse Professional v4.0")
-       p.setFont("Helvetica", 10)
-       p.drawString(50, height-75, f"Erstellt: {pd.Timestamp.now().strftime('%d.%m.%Y %H:%M')}")
-       
-       y = height - 120
-       
-       # Anlagendaten
-       p.setFont("Helvetica-Bold", 14)
-       p.drawString(50, y, "Anlagendaten")
-       y -= 25
-       
-       p.setFont("Helvetica", 11)
-       anlagendaten = [
-           f"Volumenstrom: {volumenstrom:,.0f} m³/h",
-           f"SFP: {sfp:.1f} W/(m³/h)",
-           f"Teillast Normal/Absenk: {teillast_normal*100:.0f}%/{teillast_absenk*100:.0f}%",
-           f"WRG: {wrg_typ} ({wrg_wirkungsgrad*100:.0f}%)" if wrg_vorhanden else "Keine WRG",
-           ""
-       ]
-       
-       for item in anlagendaten:
-           p.drawString(70, y, item)
-           y -= 18
-       
-       # Klimabedingungen
-       p.setFont("Helvetica-Bold", 14)
-       p.drawString(50, y, "Klimabedingungen (Jahres-Ø)")
-       y -= 25
-       
-       p.setFont("Helvetica", 11)
-       klimadaten = [
-           f"Außenluft: {temp_aussen:.1f}°C, {feuchte_aussen:.1f}% rF",
-           f"Zuluft: {temp_zuluft:.1f}°C" + (f", {feuchte_zuluft_soll:.1f}% rF" if entfeuchten else ""),
-           f"Entfeuchtung: {'Aktiv' if entfeuchten else 'Inaktiv'}",
-           f"Absenkung: -{temp_absenkung}K, -{vol_absenkung*100:.0f}% Volumenstrom",
-           ""
-       ]
-       
-       for item in klimadaten:
-           p.drawString(70, y, item)
-           y -= 18
-       
-       # Betriebszeiten
-       p.setFont("Helvetica-Bold", 14)
-       p.drawString(50, y, "Betriebszeiten")
-       y -= 25
-       
-       p.setFont("Helvetica", 11)
-       betriebsdaten = [
-           f"Normalbetrieb: {stunden_jahr['normal']:,.0f} h/Jahr",
-           f"Absenkbetrieb: {stunden_jahr['absenk']:,.0f} h/Jahr",
-           f"Wartung/Ferien: {wartungstage_jahr} Tage + {ferien_wochen} Wochen",
-           f"Aktivzeit gesamt: {stunden_jahr['gesamt']:,.0f} h/Jahr ({stunden_jahr['gesamt']/8760*100:.1f}%)",
-           ""
-       ]
-       
-       for item in betriebsdaten:
-           p.drawString(70, y, item)
-           y -= 18
-       
-       # Leistungen
-       p.setFont("Helvetica-Bold", 14)
-       p.drawString(50, y, "Installierte Leistungen")
-       y -= 25
-       
-       p.setFont("Helvetica", 11)
-       leistungsdaten = [
-           f"Ventilator: {p_ventilator_normal:.1f} kW (Absenk: {p_ventilator_absenk:.1f} kW)",
-           f"Heizung: {p_heizen_normal:.1f} kW" + (f" (Nachheizung: {p_nachheizung_normal:.1f} kW)" if p_nachheizung_normal > 0.1 else ""),
-           f"Kühlung: {p_kuehlen_normal:.1f} kW" + (f" (Entfeuchtung: {p_kuehlung_entf_normal:.1f} kW)" if p_kuehlung_entf_normal > 0.1 else ""),
-           f"Anschlusswert: {p_gesamt:.1f} kW",
-           ""
-       ]
-       
-       for item in leistungsdaten:
-           p.drawString(70, y, item)
-           y -= 18
-       
-       # Jahresenergie und Kosten
-       p.setFont("Helvetica-Bold", 14)
-       p.drawString(50, y, "Jahresenergie und Kosten")
-       y -= 25
-       
-       p.setFont("Helvetica", 11)
-       kostendaten = [
-           f"Ventilator: {energie_ventilator:.0f} kWh/a → {kosten_ventilator:,.0f} €/Jahr",
-           f"Heizung: {energie_heizen:.0f} kWh/a → {kosten_heizen:,.0f} €/Jahr",
-           f"Kühlung: {energie_kuehlen:.0f} kWh/a → {kosten_kuehlen:,.0f} €/Jahr",
-           "",
-           f"GESAMTKOSTEN: {gesamtkosten:,.0f} €/Jahr ({gesamtkosten/12:,.0f} €/Monat)",
-           f"Gesamtenergie: {jahresenergie_gesamt:.1f} MWh/Jahr"
-       ]
-       
-       for item in kostendaten:
-           if "GESAMTKOSTEN" in item:
-               p.setFont("Helvetica-Bold", 12)
-           p.drawString(70, y, item)
-           p.setFont("Helvetica", 11)
-           y -= 18
-       
-       # Fußzeile
-       p.setFont("Helvetica-Italic", 8)
-       p.drawString(50, 50, "RLT-Kostenanalyse Professional v4.0 - Fachlich korrekte Berechnung")
-       p.drawString(50, 35, f"Wochentagsbasierte Betriebszeiten, Magnus-Formel, h,x-Diagramm")
-       
-       p.save()
-       buffer.seek(0)
-       
-       st.download_button(
-           label="📥 Professional PDF Report",
-           data=buffer,
-           file_name=f"RLT_Professional_v4_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.pdf",
-           mime="application/pdf",
-           use_container_width=True
-       )
+    with col2:
+    if st.button("📄 Professional Report", type="primary", use_container_width=True):
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer, pagesize=A4)
+        width, height = A4
+        
+        # Header
+        p.setFont("Helvetica-Bold", 18)
+        p.drawString(50, height-50, "RLT-Kostenanalyse Professional v4.0")
+        p.setFont("Helvetica", 10)
+        p.drawString(50, height-75, f"Erstellt: {pd.Timestamp.now().strftime('%d.%m.%Y %H:%M')}")
+        
+        y = height - 120
+        
+        # Anlagendaten
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "Anlagendaten")
+        y -= 25
+        
+        p.setFont("Helvetica", 11)
+        anlagendaten = [
+            f"Volumenstrom: {volumenstrom:,.0f} m³/h",
+            f"SFP: {sfp:.1f} W/(m³/h)",
+            f"Teillast Normal/Absenk: {teillast_normal*100:.0f}%/{teillast_absenk*100:.0f}%",
+            f"WRG: {wrg_typ} ({wrg_wirkungsgrad*100:.0f}%)" if wrg_vorhanden else "Keine WRG",
+            ""
+        ]
+        
+        for item in anlagendaten:
+            p.drawString(70, y, item)
+            y -= 18
+        
+        # Klimabedingungen
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "Klimabedingungen (Jahres-Ø)")
+        y -= 25
+        
+        p.setFont("Helvetica", 11)
+        klimadaten = [
+            f"Außenluft: {temp_aussen:.1f}°C, {feuchte_aussen:.1f}% rF",
+            f"Zuluft: {temp_zuluft:.1f}°C" + (f", {feuchte_zuluft_soll:.1f}% rF" if entfeuchten else ""),
+            f"Entfeuchtung: {'Aktiv' if entfeuchten else 'Inaktiv'}",
+            f"Absenkung: -{temp_absenkung}K, -{vol_absenkung*100:.0f}% Volumenstrom",
+            ""
+        ]
+        
+        for item in klimadaten:
+            p.drawString(70, y, item)
+            y -= 18
+        
+        # Betriebszeiten
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "Betriebszeiten")
+        y -= 25
+        
+        p.setFont("Helvetica", 11)
+        betriebsdaten = [
+            f"Normalbetrieb: {stunden_jahr['normal']:,.0f} h/Jahr",
+            f"Absenkbetrieb: {stunden_jahr['absenk']:,.0f} h/Jahr",
+            f"Wartung/Ferien: {wartungstage_jahr} Tage + {ferien_wochen} Wochen",
+            f"Aktivzeit gesamt: {stunden_jahr['gesamt']:,.0f} h/Jahr ({stunden_jahr['gesamt']/8760*100:.1f}%)",
+            ""
+        ]
+        
+        for item in betriebsdaten:
+            p.drawString(70, y, item)
+            y -= 18
+        
+        # Leistungen
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "Installierte Leistungen")
+        y -= 25
+        
+        p.setFont("Helvetica", 11)
+        leistungsdaten = [
+            f"Ventilator: {p_ventilator_normal:.1f} kW (Absenk: {p_ventilator_absenk:.1f} kW)",
+            f"Heizung: {p_heizen_normal:.1f} kW" + (f" (Nachheizung: {p_nachheizung_normal:.1f} kW)" if p_nachheizung_normal > 0.1 else ""),
+            f"Kühlung: {p_kuehlen_normal:.1f} kW" + (f" (Entfeuchtung: {p_kuehlung_entf_normal:.1f} kW)" if p_kuehlung_entf_normal > 0.1 else ""),
+            f"Anschlusswert: {p_gesamt:.1f} kW",
+            ""
+        ]
+        
+        for item in leistungsdaten:
+            p.drawString(70, y, item)
+            y -= 18
+        
+        # Jahresenergie und Kosten
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "Jahresenergie und Kosten")
+        y -= 25
+        
+        p.setFont("Helvetica", 11)
+        kostendaten = [
+            f"Ventilator: {energie_ventilator:.0f} kWh/a → {kosten_ventilator:,.0f} €/Jahr",
+            f"Heizung: {energie_heizen:.0f} kWh/a → {kosten_heizen:,.0f} €/Jahr",
+            f"Kühlung: {energie_kuehlen:.0f} kWh/a → {kosten_kuehlen:,.0f} €/Jahr",
+            "",
+            f"GESAMTKOSTEN: {gesamtkosten:,.0f} €/Jahr ({gesamtkosten/12:,.0f} €/Monat)",
+            f"Gesamtenergie: {jahresenergie_gesamt:.1f} MWh/Jahr"
+        ]
+        
+        for item in kostendaten:
+            if "GESAMTKOSTEN" in item:
+                p.setFont("Helvetica-Bold", 12)
+            p.drawString(70, y, item)
+            p.setFont("Helvetica", 11)
+            y -= 18
+        
+        # Fußzeile
+        p.setFont("Helvetica-Italic", 8)
+        p.drawString(50, 50, "RLT-Kostenanalyse Professional v4.0 - Fachlich korrekte Berechnung")
+        p.drawString(50, 35, f"Wochentagsbasierte Betriebszeiten, Magnus-Formel, h,x-Diagramm")
+        
+        p.save()
+        buffer.seek(0)
+        
+        st.download_button(
+            label="📥 Professional PDF Report",
+            data=buffer,
+            file_name=f"RLT_Professional_v4_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
 
-st.markdown("---")
-st.markdown("*RLT-Kostenanalyse Professional v4.0 | Fachlich korrekte Berechnungen mit professioneller Benutzerführung für Techniker und kaufmännisches Personal*")
+    st.markdown("---")
+    st.markdown("*RLT-Kostenanalyse Professional v4.0 | Fachlich korrekte Berechnungen mit professioneller Benutzerführung für Techniker und kaufmännisches Personal*")

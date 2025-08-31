@@ -458,9 +458,8 @@ with col_right:
                 st.info("Keine Kühlung erforderlich")
         
         with col2:
-            st.markdown("**Heizleistungen:**")
-            if p_nachheizung_
-            if p_nachheizung_normal > 0:
+           st.markdown("**Heizleistungen:**")
+           if p_nachheizung_normal > 0:
                st.warning(f"🔥 Nachheizung: **{p_nachheizung_normal:.1f} kW**")
            if p_heizung_direkt_normal > 0:
                st.warning(f"🔥 Direkte Heizung: **{p_heizung_direkt_normal:.1f} kW**")

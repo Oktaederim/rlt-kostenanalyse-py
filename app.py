@@ -785,128 +785,128 @@ with col_right:
     col1, col2, col3 = st.columns([2, 1, 2])
 
     with col2:
-    if st.button("📄 Professional Report", type="primary", use_container_width=True):
-        buffer = BytesIO()
-        p = canvas.Canvas(buffer, pagesize=A4)
-        width, height = A4
-        
-        # Header
-        p.setFont("Helvetica-Bold", 18)
-        p.drawString(50, height-50, "RLT-Kostenanalyse Professional v4.0")
-        p.setFont("Helvetica", 10)
-        p.drawString(50, height-75, f"Erstellt: {pd.Timestamp.now().strftime('%d.%m.%Y %H:%M')}")
-        
-        y = height - 120
-        
-        # Anlagendaten
-        p.setFont("Helvetica-Bold", 14)
-        p.drawString(50, y, "Anlagendaten")
-        y -= 25
-        
-        p.setFont("Helvetica", 11)
-        anlagendaten = [
-            f"Volumenstrom: {volumenstrom:,.0f} m³/h",
-            f"SFP: {sfp:.1f} W/(m³/h)",
-            f"Teillast Normal/Absenk: {teillast_normal*100:.0f}%/{teillast_absenk*100:.0f}%",
-            f"WRG: {wrg_typ} ({wrg_wirkungsgrad*100:.0f}%)" if wrg_vorhanden else "Keine WRG",
-            ""
-        ]
-        
-        for item in anlagendaten:
-            p.drawString(70, y, item)
-            y -= 18
-        
-        # Klimabedingungen
-        p.setFont("Helvetica-Bold", 14)
-        p.drawString(50, y, "Klimabedingungen (Jahres-Ø)")
-        y -= 25
-        
-        p.setFont("Helvetica", 11)
-        klimadaten = [
-            f"Außenluft: {temp_aussen:.1f}°C, {feuchte_aussen:.1f}% rF",
-            f"Zuluft: {temp_zuluft:.1f}°C" + (f", {feuchte_zuluft_soll:.1f}% rF" if entfeuchten else ""),
-            f"Entfeuchtung: {'Aktiv' if entfeuchten else 'Inaktiv'}",
-            f"Absenkung: -{temp_absenkung}K, -{vol_absenkung*100:.0f}% Volumenstrom",
-            ""
-        ]
-        
-        for item in klimadaten:
-            p.drawString(70, y, item)
-            y -= 18
-        
-        # Betriebszeiten
-        p.setFont("Helvetica-Bold", 14)
-        p.drawString(50, y, "Betriebszeiten")
-        y -= 25
-        
-        p.setFont("Helvetica", 11)
-        betriebsdaten = [
-            f"Normalbetrieb: {stunden_jahr['normal']:,.0f} h/Jahr",
-            f"Absenkbetrieb: {stunden_jahr['absenk']:,.0f} h/Jahr",
-            f"Wartung/Ferien: {wartungstage_jahr} Tage + {ferien_wochen} Wochen",
-            f"Aktivzeit gesamt: {stunden_jahr['gesamt']:,.0f} h/Jahr ({stunden_jahr['gesamt']/8760*100:.1f}%)",
-            ""
-        ]
-        
-        for item in betriebsdaten:
-            p.drawString(70, y, item)
-            y -= 18
-        
-        # Leistungen
-        p.setFont("Helvetica-Bold", 14)
-        p.drawString(50, y, "Installierte Leistungen")
-        y -= 25
-        
-        p.setFont("Helvetica", 11)
-        leistungsdaten = [
-            f"Ventilator: {p_ventilator_normal:.1f} kW (Absenk: {p_ventilator_absenk:.1f} kW)",
-            f"Heizung: {p_heizen_normal:.1f} kW" + (f" (Nachheizung: {p_nachheizung_normal:.1f} kW)" if p_nachheizung_normal > 0.1 else ""),
-            f"Kühlung: {p_kuehlen_normal:.1f} kW" + (f" (Entfeuchtung: {p_kuehlung_entf_normal:.1f} kW)" if p_kuehlung_entf_normal > 0.1 else ""),
-            f"Anschlusswert: {p_gesamt:.1f} kW",
-            ""
-        ]
-        
-        for item in leistungsdaten:
-            p.drawString(70, y, item)
-            y -= 18
-        
-        # Jahresenergie und Kosten
-        p.setFont("Helvetica-Bold", 14)
-        p.drawString(50, y, "Jahresenergie und Kosten")
-        y -= 25
-        
-        p.setFont("Helvetica", 11)
-        kostendaten = [
-            f"Ventilator: {energie_ventilator:.0f} kWh/a → {kosten_ventilator:,.0f} €/Jahr",
-            f"Heizung: {energie_heizen:.0f} kWh/a → {kosten_heizen:,.0f} €/Jahr",
-            f"Kühlung: {energie_kuehlen:.0f} kWh/a → {kosten_kuehlen:,.0f} €/Jahr",
-            "",
-            f"GESAMTKOSTEN: {gesamtkosten:,.0f} €/Jahr ({gesamtkosten/12:,.0f} €/Monat)",
-            f"Gesamtenergie: {jahresenergie_gesamt:.1f} MWh/Jahr"
-        ]
-        
-        for item in kostendaten:
-            if "GESAMTKOSTEN" in item:
-                p.setFont("Helvetica-Bold", 12)
-            p.drawString(70, y, item)
+        if st.button("📄 Professional Report", type="primary", use_container_width=True):
+            buffer = BytesIO()
+            p = canvas.Canvas(buffer, pagesize=A4)
+            width, height = A4
+            
+            # Header
+            p.setFont("Helvetica-Bold", 18)
+            p.drawString(50, height-50, "RLT-Kostenanalyse Professional v4.0")
+            p.setFont("Helvetica", 10)
+            p.drawString(50, height-75, f"Erstellt: {pd.Timestamp.now().strftime('%d.%m.%Y %H:%M')}")
+            
+            y = height - 120
+            
+            # Anlagendaten
+            p.setFont("Helvetica-Bold", 14)
+            p.drawString(50, y, "Anlagendaten")
+            y -= 25
+            
             p.setFont("Helvetica", 11)
-            y -= 18
-        
-        # Fußzeile
-        p.setFont("Helvetica-Italic", 8)
-        p.drawString(50, 50, "RLT-Kostenanalyse Professional v4.0 - Fachlich korrekte Berechnung")
-        p.drawString(50, 35, f"Wochentagsbasierte Betriebszeiten, Magnus-Formel, h,x-Diagramm")
-        
-        p.save()
-        buffer.seek(0)
-        
-        st.download_button(
-            label="📥 Professional PDF Report",
-            data=buffer,
-            file_name=f"RLT_Professional_v4_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.pdf",
-            mime="application/pdf",
-            use_container_width=True
-        )
+            anlagendaten = [
+                f"Volumenstrom: {volumenstrom:,.0f} m³/h",
+                f"SFP: {sfp:.1f} W/(m³/h)",
+                f"Teillast Normal/Absenk: {teillast_normal*100:.0f}%/{teillast_absenk*100:.0f}%",
+                f"WRG: {wrg_typ} ({wrg_wirkungsgrad*100:.0f}%)" if wrg_vorhanden else "Keine WRG",
+                ""
+            ]
+            
+            for item in anlagendaten:
+                p.drawString(70, y, item)
+                y -= 18
+            
+            # Klimabedingungen
+            p.setFont("Helvetica-Bold", 14)
+            p.drawString(50, y, "Klimabedingungen (Jahres-Ø)")
+            y -= 25
+            
+            p.setFont("Helvetica", 11)
+            klimadaten = [
+                f"Außenluft: {temp_aussen:.1f}°C, {feuchte_aussen:.1f}% rF",
+                f"Zuluft: {temp_zuluft:.1f}°C" + (f", {feuchte_zuluft_soll:.1f}% rF" if entfeuchten else ""),
+                f"Entfeuchtung: {'Aktiv' if entfeuchten else 'Inaktiv'}",
+                f"Absenkung: -{temp_absenkung}K, -{vol_absenkung*100:.0f}% Volumenstrom",
+                ""
+            ]
+            
+            for item in klimadaten:
+                p.drawString(70, y, item)
+                y -= 18
+            
+            # Betriebszeiten
+            p.setFont("Helvetica-Bold", 14)
+            p.drawString(50, y, "Betriebszeiten")
+            y -= 25
+            
+            p.setFont("Helvetica", 11)
+            betriebsdaten = [
+                f"Normalbetrieb: {stunden_jahr['normal']:,.0f} h/Jahr",
+                f"Absenkbetrieb: {stunden_jahr['absenk']:,.0f} h/Jahr",
+                f"Wartung/Ferien: {wartungstage_jahr} Tage + {ferien_wochen} Wochen",
+                f"Aktivzeit gesamt: {stunden_jahr['gesamt']:,.0f} h/Jahr ({stunden_jahr['gesamt']/8760*100:.1f}%)",
+                ""
+            ]
+            
+            for item in betriebsdaten:
+                p.drawString(70, y, item)
+                y -= 18
+            
+            # Leistungen
+            p.setFont("Helvetica-Bold", 14)
+            p.drawString(50, y, "Installierte Leistungen")
+            y -= 25
+            
+            p.setFont("Helvetica", 11)
+            leistungsdaten = [
+                f"Ventilator: {p_ventilator_normal:.1f} kW (Absenk: {p_ventilator_absenk:.1f} kW)",
+                f"Heizung: {p_heizen_normal:.1f} kW" + (f" (Nachheizung: {p_nachheizung_normal:.1f} kW)" if p_nachheizung_normal > 0.1 else ""),
+                f"Kühlung: {p_kuehlen_normal:.1f} kW" + (f" (Entfeuchtung: {p_kuehlung_entf_normal:.1f} kW)" if p_kuehlung_entf_normal > 0.1 else ""),
+                f"Anschlusswert: {p_gesamt:.1f} kW",
+                ""
+            ]
+            
+            for item in leistungsdaten:
+                p.drawString(70, y, item)
+                y -= 18
+            
+            # Jahresenergie und Kosten
+            p.setFont("Helvetica-Bold", 14)
+            p.drawString(50, y, "Jahresenergie und Kosten")
+            y -= 25
+            
+            p.setFont("Helvetica", 11)
+            kostendaten = [
+                f"Ventilator: {energie_ventilator:.0f} kWh/a → {kosten_ventilator:,.0f} €/Jahr",
+                f"Heizung: {energie_heizen:.0f} kWh/a → {kosten_heizen:,.0f} €/Jahr",
+                f"Kühlung: {energie_kuehlen:.0f} kWh/a → {kosten_kuehlen:,.0f} €/Jahr",
+                "",
+                f"GESAMTKOSTEN: {gesamtkosten:,.0f} €/Jahr ({gesamtkosten/12:,.0f} €/Monat)",
+                f"Gesamtenergie: {jahresenergie_gesamt:.1f} MWh/Jahr"
+            ]
+            
+            for item in kostendaten:
+                if "GESAMTKOSTEN" in item:
+                    p.setFont("Helvetica-Bold", 12)
+                p.drawString(70, y, item)
+                p.setFont("Helvetica", 11)
+                y -= 18
+            
+            # Fußzeile
+            p.setFont("Helvetica-Italic", 8)
+            p.drawString(50, 50, "RLT-Kostenanalyse Professional v4.0 - Fachlich korrekte Berechnung")
+            p.drawString(50, 35, f"Wochentagsbasierte Betriebszeiten, Magnus-Formel, h,x-Diagramm")
+            
+            p.save()
+            buffer.seek(0)
+            
+            st.download_button(
+                label="📥 Professional PDF Report",
+                data=buffer,
+                file_name=f"RLT_Professional_v4_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
 
-    st.markdown("---")
-    st.markdown("*RLT-Kostenanalyse Professional v4.0 | Fachlich korrekte Berechnungen mit professioneller Benutzerführung für Techniker und kaufmännisches Personal*")
+        st.markdown("---")
+        st.markdown("*RLT-Kostenanalyse Professional v4.0 | Fachlich korrekte Berechnungen mit professioneller Benutzerführung für Techniker und kaufmännisches Personal*")

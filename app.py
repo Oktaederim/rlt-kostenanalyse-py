@@ -487,7 +487,7 @@ with col_right:
                     f"Entfeuchtung: {p_kuehlung_entf_normal:.1f} kW" if p_kuehlung_entf_normal > 0.1 else None)
            st.markdown('</div>', unsafe_allow_html=True)
        
-        with col4:
+       with col4:
            p_gesamt = p_ventilator_normal + p_heizen_normal + p_kuehlen_normal
            st.metric("⚡ Gesamtleistung", f"{p_gesamt:.1f} kW", "Anschlusswert")
        

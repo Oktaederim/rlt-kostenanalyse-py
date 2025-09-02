@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from datetime import time
 
 # --- SEITENKONFIGURATION ---
-st.set_page_config(page_title="Interaktive RLT-Analyse Pro v8.1", page_icon="🌬️", layout="wide")
+st.set_page_config(page_title="Interaktive RLT-Analyse Pro v8.2", page_icon="🌬️", layout="wide")
 
 # --- KONSTANTEN UND FARBEN ---
 LUFTDICHTE_KG_M3 = 1.2
@@ -65,13 +65,11 @@ def berechne_luftzustand(temp, rel_feuchte=None, abs_feuchte=None):
 def berechne_rlt_prozess(params):
     prozess = {'schritte': [], 'leistungen': {'kuehlung_entf': 0, 'nachheizung_NE': 0, 'heizung_direkt_VE': 0}}
     
-    # Zustand 1: Außenluft
     abs_feuchte_aussen = abs_feuchte_aus_rel_feuchte(params['temp_aussen'], params['feuchte_aussen'])
     zustand1 = {'Punkt': '1: Außenluft', **berechne_luftzustand(params['temp_aussen'], abs_feuchte=abs_feuchte_aussen)}
     prozess['schritte'].append(zustand1)
     akt_temp, akt_abs_feuchte = zustand1['T [°C]'], abs_feuchte_aussen
 
-    # Zustand 2: Nach WRG
     if params['wrg_wirkungsgrad'] > 0:
         temp_nach_wrg = akt_temp + (params['temp_abluft'] - akt_temp) * params['wrg_wirkungsgrad'] / 100
         zustand2 = {'Punkt': '2: Nach WRG', **berechne_luftzustand(temp_nach_wrg, abs_feuchte=akt_abs_feuchte)}
@@ -80,7 +78,6 @@ def berechne_rlt_prozess(params):
     
     h_vor_behandlung = enthalpie_feuchte_luft(akt_temp, akt_abs_feuchte)
 
-    # Luftbehandlungsprozess
     if params['betriebsmodus'] == "Entfeuchten":
         ziel_abs_feuchte = abs_feuchte_aus_rel_feuchte(params['temp_zuluft'], params['feuchte_zuluft_soll'])
         if akt_abs_feuchte > ziel_abs_feuchte:
@@ -212,7 +209,7 @@ p_heizung_ve = luftmassenstrom_kgs * prozess['leistungen']['heizung_direkt_VE']
 p_heizung_ne = luftmassenstrom_kgs * prozess['leistungen']['nachheizung_NE']
 p_heizung_gesamt = p_heizung_ve + p_heizung_ne
 
-stunden_pro_tag = (st.session_state.end_zeit.hour - st.session_state.start_zeit.hour) + (st.session_state.end_zeit.minute - st.session_state.start_zeit.minute)/60
+stunden_pro_tag = max(0, (st.session_state.end_zeit.hour - st.session_state.start_zeit.hour) + (st.session_state.end_zeit.minute - st.session_state.start_zeit.minute)/60)
 jahresstunden = stunden_pro_tag * len(st.session_state.tage) * 52
 
 kosten_ventilator = p_ventilator * jahresstunden * st.session_state.preis_strom
@@ -240,7 +237,6 @@ with tab1:
     with col3:
         st.markdown(f'<div class="metric-container" style="border-left: 5px solid {COOLING_COLOR};">', unsafe_allow_html=True)
         st.metric(label="❄️ Kühlleistung", value=f"{p_kuehlung:.1f} kW")
-        # KORRIGIERT: Tippfehler in 'wasserausfall_kgh' behoben
         if wasserausfall_kgh > 0.1:
             st.caption(f"💧 Kondensat: {wasserausfall_kgh:.1f} kg/h")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -253,11 +249,13 @@ with tab1:
         st.markdown('</div>', unsafe_allow_html=True)
     with col2:
         st.markdown(f'<div class="metric-container">', unsafe_allow_html=True)
-        st.metric(label="Heizkosten", value=f"{kosten_heizen:,.0f} €")
+        # KORRIGIERT: Tippfehler in 'kosten_heizung'
+        st.metric(label="Heizkosten", value=f"{kosten_heizung:,.0f} €")
         st.markdown('</div>', unsafe_allow_html=True)
     with col3:
         st.markdown(f'<div class="metric-container">', unsafe_allow_html=True)
-        st.metric(label="Kühlkosten", value=f"{kosten_kuehlen:,.0f} €")
+        # KORRIGIERT: Tippfehler in 'kosten_kuehlung'
+        st.metric(label="Kühlkosten", value=f"{kosten_kuehlung:,.0f} €")
         st.markdown('</div>', unsafe_allow_html=True)
     with col4:
         st.markdown(f'<div class="metric-container" style="border: 2px solid {TOTAL_COLOR};">', unsafe_allow_html=True)

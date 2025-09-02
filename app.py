@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from datetime import time
 
 # --- SEITENKONFIGURATION ---
-st.set_page_config(page_title="Interaktive RLT-Analyse Pro v8.0", page_icon="🌬️", layout="wide")
+st.set_page_config(page_title="Interaktive RLT-Analyse Pro v8.1", page_icon="🌬️", layout="wide")
 
 # --- KONSTANTEN UND FARBEN ---
 LUFTDICHTE_KG_M3 = 1.2
@@ -15,7 +15,6 @@ FAN_COLOR = "#F57C00"
 TOTAL_COLOR = "#388E3C"
 
 # --- PHYSIKALISCHE FUNKTIONEN ---
-# (Die thermodynamischen Kernfunktionen bleiben unverändert, da sie korrekt sind)
 def saettigungsdampfdruck(temp):
     return 611.2 * np.exp((17.67 * temp) / (temp + 243.5))
 
@@ -30,10 +29,12 @@ def rel_feuchte_aus_abs_feuchte(temp, abs_feuchte):
     return min(100, max(0, e / es * 100))
 
 def enthalpie_feuchte_luft(temp, abs_feuchte):
+    # Umstellung auf kJ/kg für konsistente Einheiten
     return 1.006 * temp + abs_feuchte * (2501 + 1.86 * temp)
 
 def taupunkt(temp, rel_feuchte):
     e = rel_feuchte / 100 * saettigungsdampfdruck(temp)
+    if e <= 0: return -273.15 # physikalisch nicht sinnvoll, aber verhindert Rechenfehler
     return 243.5 * np.log(e / 611.2) / (17.67 - np.log(e / 611.2))
 
 def kuhltemperatur_fur_entfeuchtung(ziel_abs_feuchte, sicherheit=1):
@@ -81,20 +82,17 @@ def berechne_rlt_prozess(params):
 
     # Luftbehandlungsprozess
     if params['betriebsmodus'] == "Entfeuchten":
-        ziel_abs_feuchte = params['feuchte_abs_soll'] / 1000 if params.get('feuchte_abs_soll') else abs_feuchte_aus_rel_feuchte(params['temp_zuluft'], params['feuchte_zuluft_soll'])
+        ziel_abs_feuchte = abs_feuchte_aus_rel_feuchte(params['temp_zuluft'], params['feuchte_zuluft_soll'])
         if akt_abs_feuchte > ziel_abs_feuchte:
             temp_kuehlung = kuhltemperatur_fur_entfeuchtung(ziel_abs_feuchte)
-            # Zustand 3: Gekühlt & Entfeuchtet
             zustand3 = {'Punkt': '3: Nach Kühler', **berechne_luftzustand(temp_kuehlung, abs_feuchte=ziel_abs_feuchte)}
             prozess['schritte'].append(zustand3)
             prozess['leistungen']['kuehlung_entf'] = max(0, h_vor_behandlung - zustand3['h [kJ/kg]'])
-            # Zustand 4: Nacherhitzt
             if temp_kuehlung < params['temp_zuluft']:
                 zustand4 = {'Punkt': '4: Zuluft (NE)', **berechne_luftzustand(params['temp_zuluft'], abs_feuchte=ziel_abs_feuchte)}
                 prozess['schritte'].append(zustand4)
                 prozess['leistungen']['nachheizung_NE'] = max(0, zustand4['h [kJ/kg]'] - zustand3['h [kJ/kg]'])
     elif params['betriebsmodus'] == "Nur Heizen" and akt_temp < params['temp_zuluft']:
-        # Zustand 3/4: Vorerhitzt
         zustand_final = {'Punkt': '4: Zuluft (VE)', **berechne_luftzustand(params['temp_zuluft'], abs_feuchte=akt_abs_feuchte)}
         prozess['schritte'].append(zustand_final)
         prozess['leistungen']['heizung_direkt_VE'] = max(0, zustand_final['h [kJ/kg]'] - h_vor_behandlung)
@@ -104,12 +102,10 @@ def berechne_rlt_prozess(params):
 # --- h-x Diagramm Plot Funktion ---
 def plot_hx_diagram(prozess_schritte):
     fig = go.Figure()
-    # Sättigungslinie (100% rF)
     t_range = np.linspace(-20, 40, 61)
     x_saettigung = [abs_feuchte_aus_rel_feuchte(t, 100) * 1000 for t in t_range]
     fig.add_trace(go.Scatter(x=x_saettigung, y=t_range, mode='lines', name='Sättigungslinie (100% rF)', line=dict(color='grey', width=2, dash='dash')))
     
-    # Prozesspunkte
     temps = [p['T [°C]'] for p in prozess_schritte]
     feuchten = [p['x [g/kg]'] for p in prozess_schritte]
     labels = [p['Punkt'] for p in prozess_schritte]
@@ -150,6 +146,7 @@ def set_defaults():
     st.session_state.feuchte_aussen = 85
     st.session_state.temp_zuluft = 22.0
     st.session_state.feuchte_zuluft_soll = 50
+    st.session_state.temp_abluft = 23.0
     st.session_state.tage = ["Mo", "Di", "Mi", "Do", "Fr"]
     st.session_state.start_zeit = time(8, 0)
     st.session_state.end_zeit = time(18, 0)
@@ -186,7 +183,7 @@ with st.sidebar:
     col1.number_input("Zuluft T [°C]:", 16.0, 26.0, key='temp_zuluft', step=0.5)
     if st.session_state.betriebsmodus == "Entfeuchten":
          col2.number_input("Zuluft rF [%]:", 30, 65, key='feuchte_zuluft_soll', step=1)
-    st.number_input("Annahme Abluft T [°C]:", 18.0, 30.0, value=23.0, step=0.5, key='temp_abluft', help="Wird für die WRG-Berechnung benötigt.")
+    st.number_input("Annahme Abluft T [°C]:", 18.0, 30.0, key='temp_abluft', help="Wird für die WRG-Berechnung benötigt.")
     
     st.markdown('<p class="sidebar-header">Betriebszeiten</p>', unsafe_allow_html=True)
     st.multiselect("Betriebstage:", ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"], key='tage')
@@ -204,14 +201,10 @@ with st.sidebar:
 st.markdown('<div class="main-header">Interaktives Dashboard für RLT-Anlagen</div>', unsafe_allow_html=True)
 
 # --- BERECHNUNGEN (live bei jeder Interaktion) ---
-# SFP bestimmen
 sfp_final = berechne_realistische_sfp(st.session_state.volumenstrom) if st.session_state.sfp_modus == '🤖 Automatisch' else st.session_state.sfp_manuell
-
-# Prozess berechnen
 prozess_params = {k: v for k, v in st.session_state.items()}
 prozess = berechne_rlt_prozess(prozess_params)
 
-# Leistungen
 luftmassenstrom_kgs = st.session_state.volumenstrom * LUFTDICHTE_KG_M3 / 3600
 p_ventilator = st.session_state.volumenstrom * sfp_final / 1000
 p_kuehlung = luftmassenstrom_kgs * prozess['leistungen']['kuehlung_entf']
@@ -219,24 +212,19 @@ p_heizung_ve = luftmassenstrom_kgs * prozess['leistungen']['heizung_direkt_VE']
 p_heizung_ne = luftmassenstrom_kgs * prozess['leistungen']['nachheizung_NE']
 p_heizung_gesamt = p_heizung_ve + p_heizung_ne
 
-# Jahresstunden
 stunden_pro_tag = (st.session_state.end_zeit.hour - st.session_state.start_zeit.hour) + (st.session_state.end_zeit.minute - st.session_state.start_zeit.minute)/60
 jahresstunden = stunden_pro_tag * len(st.session_state.tage) * 52
 
-# Jahreskosten
 kosten_ventilator = p_ventilator * jahresstunden * st.session_state.preis_strom
 kosten_heizung = p_heizung_gesamt * jahresstunden * st.session_state.preis_waerme
 kosten_kuehlung = p_kuehlung * jahresstunden * st.session_state.preis_kaelte
 gesamtkosten = kosten_ventilator + kosten_heizung + kosten_kuehlung
 
-# Fachliche Kennzahlen
-zuluft_zustand = prozess['schritte'][-1]
-wasserausfall_kgh = luftmassenstrom_kgs * max(0, prozess['schritte'][0]['x [g/kg]'] - zuluft_zustand['x [g/kg]']) / 1000 * 3600
-
+zuluft_zustand = prozess['schritte'][-1] if prozess['schritte'] else prozess['schritte'][0]
+wasserausfall_kgh = luftmassenstrom_kgs * max(0, prozess['schritte'][0]['x [g/kg]'] - zuluft_zustand['x [g/kg]']) * 3.6
 
 # --- ERGEBNIS-ANZEIGE IN TABS ---
 tab1, tab2, tab3 = st.tabs(["**📊 Dashboard**", "**📈 h-x Diagramm**", "**📋 Prozesstabelle**"])
-
 with tab1:
     st.subheader("Leistung am Auslegungspunkt")
     col1, col2, col3 = st.columns(3)
@@ -252,7 +240,8 @@ with tab1:
     with col3:
         st.markdown(f'<div class="metric-container" style="border-left: 5px solid {COOLING_COLOR};">', unsafe_allow_html=True)
         st.metric(label="❄️ Kühlleistung", value=f"{p_kuehlung:.1f} kW")
-        if wasseausfall_kgh > 0.1:
+        # KORRIGIERT: Tippfehler in 'wasserausfall_kgh' behoben
+        if wasserausfall_kgh > 0.1:
             st.caption(f"💧 Kondensat: {wasserausfall_kgh:.1f} kg/h")
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -280,10 +269,12 @@ with tab2:
 
 with tab3:
     st.subheader("Zustandsgrößen der Luft an jedem Prozesspunkt")
-    df_prozess = pd.DataFrame(prozess['schritte'])
-    # Formatierung für bessere Lesbarkeit
-    df_prozess_display = df_prozess.style.format({
-        'T [°C]': '{:.1f}', 'rF [%]': '{:.1f}', 'x [g/kg]': '{:.2f}',
-        'h [kJ/kg]': '{:.1f}', 'Taupunkt [°C]': '{:.1f}'
-    })
-    st.dataframe(df_prozess_display, use_container_width=True, hide_index=True)
+    if prozess['schritte']:
+        df_prozess = pd.DataFrame(prozess['schritte'])
+        df_prozess_display = df_prozess.style.format({
+            'T [°C]': '{:.1f}', 'rF [%]': '{:.1f}', 'x [g/kg]': '{:.2f}',
+            'h [kJ/kg]': '{:.1f}', 'Taupunkt [°C]': '{:.1f}'
+        })
+        st.dataframe(df_prozess_display, use_container_width=True, hide_index=True)
+    else:
+        st.warning("Für die aktuellen Einstellungen findet kein relevanter Luftbehandlungsprozess statt.")
